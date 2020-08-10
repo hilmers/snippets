@@ -2,11 +2,9 @@
 #include <signal.h>
 #include <string.h>
 
-namespace {
 void signal_handler(int signal, siginfo_t* sig_info, void* unused) {
     std::cout << "Signal handler: Got " << strsignal(signal) << std::endl;
     raise(signal);
-}
 }
 
 int main() {
