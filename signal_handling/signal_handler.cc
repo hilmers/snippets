@@ -1,7 +1,6 @@
-#include <signal.h>
 #include <iostream>
+#include <signal.h>
 #include <string.h>
-#include <cstdio>
 
 namespace {
 void signal_handler(int signal, siginfo_t* sig_info, void* unused) {
