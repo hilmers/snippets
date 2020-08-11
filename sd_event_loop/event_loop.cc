@@ -2,7 +2,6 @@
 #include <systemd/sd-event.h>
 
 #include <cstring>
-#include <execinfo.h>
 #include <iostream>
 
 int signal_handler(sd_event_source* es, const struct signalfd_siginfo* si, void* /*userdata*/) {
