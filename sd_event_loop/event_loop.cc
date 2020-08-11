@@ -1,6 +1,8 @@
 #include <systemd/sd-daemon.h>
 #include <systemd/sd-event.h>
 
+#include "spdlog/async.h"
+#include "spdlog/sinks/basic_file_sink.h"
 #include <cstring>
 #include <iostream>
 
@@ -34,7 +36,7 @@ bool SetupSignalHandler(sd_event* event) {
 
 int main() {
     sd_event* event = nullptr;
-
+    auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
     // Acquire default event loop object (for calling thread).
     int event_loop_aquired = sd_event_default(&event);
     if (event_loop_aquired < 0) {
