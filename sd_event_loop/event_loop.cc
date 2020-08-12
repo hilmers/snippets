@@ -1,13 +1,12 @@
 #include <systemd/sd-daemon.h>
 #include <systemd/sd-event.h>
-
+#include "spdlog/spdlog.h"
 #include "spdlog/async.h"
 #include "spdlog/sinks/basic_file_sink.h"
 #include <cstring>
-#include <iostream>
 
 int signal_handler(sd_event_source* es, const struct signalfd_siginfo* si, void* /*userdata*/) {
-    std::cout << "Signal handler: Got " << strsignal(si->ssi_signo) << std::endl;
+    spdlog::info("Signal handler: Got {}", strsignal(si->ssi_signo));
     sd_event_exit(sd_event_source_get_event(es), 0);
     return 0;
 }
@@ -36,21 +35,25 @@ bool SetupSignalHandler(sd_event* event) {
 
 int main() {
     sd_event* event = nullptr;
-    auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("async_file_logger", "logs/async_log.txt");
+    auto logfile = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger", "logs/log.txt");
+
     // Acquire default event loop object (for calling thread).
     int event_loop_aquired = sd_event_default(&event);
     if (event_loop_aquired < 0) {
+        logfile->critical("Acquiring event loop failed");
         return EXIT_FAILURE;
     }
 
     if (!SetupSignalHandler(event)) {
-       return EXIT_FAILURE;
+        logfile->critical("Failed to setup signal handler");
+        return EXIT_FAILURE;
     }
 
-    std::cout << "Application started" << std::endl;
+    spdlog::info("Application started");
     int event_loop_exit_code = sd_event_loop(event);
-    std::cout << "Application is shutting down" << std::endl;
+    spdlog::info("Application is shutting down");
     if (event_loop_exit_code < 0) {
+        logfile->critical("Bad event loop exit code: {d}", event_loop_exit_code);
         return EXIT_FAILURE;
     }
 
