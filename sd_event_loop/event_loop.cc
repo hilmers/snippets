@@ -11,7 +11,7 @@ int signal_handler(sd_event_source* es, const struct signalfd_siginfo* si, void*
     return 0;
 }
 
-bool SetupSignalHandler(sd_event* event) {
+bool SetupSignalBlock() {
     sigset_t ss;
     // Exclude all signals from defined signal set (ss)
     if (sigemptyset(&ss) < 0) {
@@ -26,14 +26,14 @@ bool SetupSignalHandler(sd_event* event) {
     if (sigprocmask(SIG_BLOCK, &ss, nullptr) < 0) {
         return false;
     }
-    // Let the sd event loop handle SIGINT
-    if (sd_event_add_signal(event, nullptr, SIGINT, signal_handler, nullptr) < 0) {
-        return false;
-    }
     return true;
 }
 
 int main() {
+    if (!SetupSignalBlock()) {
+        return EXIT_FAILURE;
+    }
+
     sd_event* event = nullptr;
     auto logfile = spdlog::basic_logger_mt<spdlog::async_factory>("file_logger", "logs/log.txt");
 
@@ -44,8 +44,9 @@ int main() {
         return EXIT_FAILURE;
     }
 
-    if (!SetupSignalHandler(event)) {
-        logfile->critical("Failed to setup signal handler");
+    // Let the sd event loop handle SIGINT
+    if (sd_event_add_signal(event, nullptr, SIGINT, signal_handler, nullptr) < 0) {
+        logfile->critical("Failed to setup sd eventloop signal handling");
         return EXIT_FAILURE;
     }
 
