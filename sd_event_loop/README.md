@@ -2,7 +2,7 @@
 A simple implementation of a signal handler with the help of sd_event_loop.
 This is a snippet from the following blog post: hilmerssonkod.se/blog/who_handled_my_signal.html
 
-For this to complile you need to have [spdlog|https://github.com/gabime/spdlog] installed.
+For this to complile you need to have [spdlog](https://github.com/gabime/spdlog) installed.
 
 ### Compile and run
 To compile into a build directory using CMake run:
